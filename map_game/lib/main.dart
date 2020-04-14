@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:map_game/addNiftar.dart';
 import 'package:map_game/appColors.dart';
 import 'package:map_game/markerDialog.dart';
+import 'package:map_game/models/pMarker.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
 
@@ -196,7 +198,7 @@ class MapSampleState extends State<MapSample> {
                                                         child: InkWell(
                                                           borderRadius: BorderRadius.circular(8),
                                                           onTap: () async {
-                                                            Navigator.of(context).pop(index);
+                                                            Navigator.of(context).pop([false, index]);
                                                           },
                                                           child: Padding(
                                                             padding: const EdgeInsets.all(12.0),
@@ -205,9 +207,9 @@ class MapSampleState extends State<MapSample> {
                                                                 Row(
                                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                   children: <Widget>[
-                                                                    Text(markerProvider.pmarkers[index].name),
-                                                                    Text(' Son Of '),
-                                                                    Text(markerProvider.pmarkers[index].fatherName),
+                                                                    // Text(markerProvider.pmarkers[index].name),
+                                                                    // Text(' Son Of '),
+                                                                    Text(markerProvider.pmarkers[index].fullName),
                                                                   ],
                                                                 ),
                                                                 Icon(
@@ -221,7 +223,9 @@ class MapSampleState extends State<MapSample> {
                                                       );
                                                     }),
                                               ),
-                                              SizedBox(height: 10,),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
                                               ButtonTheme(
                                                 minWidth: 200,
                                                 height: 50,
@@ -230,7 +234,16 @@ class MapSampleState extends State<MapSample> {
                                                     borderRadius: BorderRadius.circular(30),
                                                   ),
                                                   color: AppColors.tMainColor,
-                                                  onPressed: () {},
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(builder: (context) => AddNiftar()),
+                                                    ).then((onValue) async {
+                                                      if (onValue != null) {
+                                                        Navigator.pop(context, [true, onValue]);
+                                                      }
+                                                    });
+                                                  },
                                                   child: Padding(
                                                     padding: const EdgeInsets.all(8.0),
                                                     child: Text(
@@ -247,13 +260,35 @@ class MapSampleState extends State<MapSample> {
                                     ),
                                   )).then((index) async {
                             if (index != null) {
-                              _goToMarker(CameraPosition(bearing: 0, target: LatLng(markerProvider.pmarkers[index].lat, markerProvider.pmarkers[index].lon), tilt: 59.440717697143555, zoom: 6.0));
-                              await Future.delayed(Duration(milliseconds: 1000), () {
-                                _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(markerProvider.pmarkers[index].lat, markerProvider.pmarkers[index].lon), tilt: 59.440717697143555, zoom: 19.151926040649414));
-                              });
-                              Future.delayed(Duration(milliseconds: 1500), () {
-                                showDialog(context: context, builder: (_) => MarkerDialog(markerProvider.pmarkers[index]));
-                              });
+                              if (index[0]) {
+                                PMarker tempMarker = index[1] as PMarker;
+                                Marker m = Marker(
+                                    markerId: MarkerId(tempMarker.id),
+                                    icon: customIcon,
+                                    position: LatLng(tempMarker.lat, tempMarker.lon),
+                                    onTap: () {
+                                      showDialog(context: context, builder: (_) => MarkerDialog(tempMarker));
+                                    });
+                                setState(() {
+                                  markers.add(m);
+                                });
+                                _goToMarker(CameraPosition(bearing: 0, target: LatLng(tempMarker.lat, tempMarker.lon), tilt: 59.440717697143555, zoom: 6.0));
+                                await Future.delayed(Duration(milliseconds: 1000), () {
+                                  _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(tempMarker.lat, tempMarker.lon), tilt: 59.440717697143555, zoom: 19.151926040649414));
+                                });
+                                Future.delayed(Duration(milliseconds: 2000), () {
+                                  showDialog(context: context, builder: (_) => MarkerDialog(tempMarker));
+                                });
+                              } else {
+                                PMarker pMarker = markerProvider.pmarkers[index[1]];
+                                _goToMarker(CameraPosition(bearing: 0, target: LatLng(pMarker.lat, pMarker.lon), tilt: 59.440717697143555, zoom: 6.0));
+                                await Future.delayed(Duration(milliseconds: 1000), () {
+                                  _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(pMarker.lat, pMarker.lon), tilt: 59.440717697143555, zoom: 19.151926040649414));
+                                });
+                                Future.delayed(Duration(milliseconds: 1500), () {
+                                  showDialog(context: context, builder: (_) => MarkerDialog(pMarker));
+                                });
+                              }
                             }
                           });
                         },

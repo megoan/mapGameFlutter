@@ -6,6 +6,7 @@ import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
 
 import 'appColors.dart';
+import 'azkara.dart';
 
 class MarkerDialog extends StatefulWidget {
   PMarker pMarker;
@@ -33,7 +34,7 @@ class _MarkerDialogState extends State<MarkerDialog> {
               )),
           child: Column(
             children: <Widget>[
-               SizedBox(
+              SizedBox(
                 height: 5,
               ),
               Padding(
@@ -42,8 +43,8 @@ class _MarkerDialogState extends State<MarkerDialog> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     //new Text(widget.pMarker.name),
-                    new Text("${widget.pMarker.name} בן ${widget.pMarker.fatherName}"),
-                   // new Text(widget.pMarker.name),
+                    new Text("${widget.pMarker.fullName}"),
+                    // new Text(widget.pMarker.name),
                   ],
                 ),
               ),
@@ -57,24 +58,24 @@ class _MarkerDialogState extends State<MarkerDialog> {
               ),
               Expanded(
                 child: Scrollbar(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      children: <Widget>[
-                        Container(
-                          width: 200,
-                          child: new Text(
-                            MarkerProvider.tehilim[index],
-                            maxLines: null,
-                            textDirection: TextDirection.rtl,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            width: 200,
+                            child: new Text(
+                              MarkerProvider.tehilim[index],
+                              maxLines: null,
+                              textDirection: TextDirection.rtl,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                                  ),
                 ),
               ),
               Row(
@@ -94,10 +95,7 @@ class _MarkerDialogState extends State<MarkerDialog> {
                           SizedBox(
                             width: 3,
                           ),
-                          Icon(
-                            Icons.restaurant_menu,
-                            color: AppColors.tHappyColor,
-                          ),
+                          
                         ],
                       ),
                       onPressed: () {
@@ -134,7 +132,27 @@ class _MarkerDialogState extends State<MarkerDialog> {
                         );
                       }),
                 ],
-              )
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              RaisedButton(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: AppColors.tMainColor, width: 2)),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Azkara()),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("תהילים לאזכרה"),
+                ),
+                color: Colors.white,
+              ),
+              SizedBox(
+                height: 15,
+              ),
             ],
           ),
         ));
