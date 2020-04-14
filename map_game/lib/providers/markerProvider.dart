@@ -10,7 +10,9 @@ class MarkerProvider extends ChangeNotifier {
     //PMarker("1",TYPE.YIZKOR, "name", "fatherName", 1, DateTime.now(), 31.736474, 34.976774),
     //PMarker("2",TYPE.YIZKOR, "name", "fatherName", 1, DateTime.now(), 31.737, 34.976773),
   ];
-
+  static List<String> fonts = ["Roboto", "Shofar", "Ezra", "Alef"];
+  static int fIndex = 0;
+  static double fontSize = 14;
   static List<String> tehilim = [];
   static Map<String, String> otiot = {};
   static List<String> tehilimPerek = [];

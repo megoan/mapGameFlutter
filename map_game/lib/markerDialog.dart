@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:map_game/models/pMarker.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'appColors.dart';
 import 'azkara.dart';
 
@@ -16,9 +17,26 @@ class MarkerDialog extends StatefulWidget {
 }
 
 class _MarkerDialogState extends State<MarkerDialog> {
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   int index = 0;
   Random random = new Random();
   ScrollController scrollController = new ScrollController();
+  bool isInit = true;
+  SharedPreferences prefs;
+  @override
+  void didChangeDependencies() async {
+    if (isInit) {
+      prefs = await _prefs;
+    }
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +69,84 @@ class _MarkerDialogState extends State<MarkerDialog> {
               SizedBox(
                 height: 15,
               ),
-              Text(
-                MarkerProvider.tehilimPerek[index],
-                textDirection: TextDirection.rtl,
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  IconButton(
+                      icon: FaIcon(
+                        FontAwesomeIcons.expandArrowsAlt,
+                        color: AppColors.tMainColor,
+                      ),
+                      onPressed: () {
+                        if (MarkerProvider.fontSize < 60) {
+                          setState(() {
+                            MarkerProvider.fontSize += 2;
+                            prefs.setDouble("fontSize", MarkerProvider.fontSize);
+                          });
+                        }
+                      }),
+                  IconButton(
+                      icon: FaIcon(
+                        FontAwesomeIcons.compressArrowsAlt,
+                        color: AppColors.tMainColor,
+                      ),
+                      onPressed: () {
+                        if (MarkerProvider.fontSize > 0) {
+                          setState(() {
+                            MarkerProvider.fontSize -= 2;
+                            prefs.setDouble("fontSize", MarkerProvider.fontSize);
+                          });
+                        }
+                      }),
+                  IconButton(
+                      icon: FaIcon(
+                        FontAwesomeIcons.font,
+                        color: AppColors.tMainColor,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          MarkerProvider.fIndex = (MarkerProvider.fIndex + 1) % MarkerProvider.fonts.length;
+                          prefs.setInt("fIndex", MarkerProvider.fIndex);
+                        });
+                      })
+                ],
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: AppColors.tMainColor,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          index = ((index + 1) % 150);
+                        });
+                      }),
+                  Text(
+                    MarkerProvider.tehilimPerek[index],
+                    textDirection: TextDirection.rtl,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.arrow_forward_ios,
+                        color: AppColors.tMainColor,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          if (index - 1 == 0) {
+                            index = 149;
+                          } else {
+                            index = ((index - 1).abs() % 150);
+                          }
+                        });
+                      }),
+                ],
               ),
               Expanded(
                 child: Scrollbar(
@@ -70,6 +162,7 @@ class _MarkerDialogState extends State<MarkerDialog> {
                               MarkerProvider.tehilim[index],
                               maxLines: null,
                               textDirection: TextDirection.rtl,
+                              style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                             ),
                           ),
                         ],
@@ -95,7 +188,6 @@ class _MarkerDialogState extends State<MarkerDialog> {
                           SizedBox(
                             width: 3,
                           ),
-                          
                         ],
                       ),
                       onPressed: () {

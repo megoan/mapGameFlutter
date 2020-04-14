@@ -29,6 +29,13 @@ class _AddNiftarState extends State<AddNiftar> {
   );
   Marker marker;
   @override
+  void dispose() {
+    fullNameController.dispose();
+    textEditingController.dispose();
+    super.dispose();
+  }
+
+  @override
   void didChangeDependencies() {
     if (isInit) {
       isInit = false;
@@ -43,7 +50,6 @@ class _AddNiftarState extends State<AddNiftar> {
   Future<void> _goToMarker(CameraPosition position) async {
     final GoogleMapController controller = await _controller.future;
     await controller.animateCamera(CameraUpdate.newCameraPosition(position));
-    print("hhhhhhhhhhh");
     return;
   }
 
@@ -65,9 +71,9 @@ class _AddNiftarState extends State<AddNiftar> {
       _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(placemark.position.latitude, placemark.position.longitude), tilt: 59.440717697143555, zoom: 19.151926040649414));
       marker = Marker(markerId: MarkerId('1'), icon: customIcon, position: LatLng(placemark.position.latitude, placemark.position.longitude), onTap: null);
 
-                  setState(() {
-                    markers.add(marker);
-                  });
+      setState(() {
+        markers.add(marker);
+      });
     }
   }
 
@@ -119,7 +125,6 @@ class _AddNiftarState extends State<AddNiftar> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: <Widget>[
-                            
                             SizedBox(
                               width: width - 30,
                               child: TextField(

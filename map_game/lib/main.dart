@@ -8,6 +8,7 @@ import 'package:map_game/markerDialog.dart';
 import 'package:map_game/models/pMarker.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,6 +36,7 @@ class MapSample extends StatefulWidget {
 
 class MapSampleState extends State<MapSample> {
   Completer<GoogleMapController> _controller = Completer();
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Set<Marker> markers;
   BitmapDescriptor customIcon;
   bool isInit = true;
@@ -48,11 +50,15 @@ class MapSampleState extends State<MapSample> {
   static final CameraPosition _kLake = CameraPosition(bearing: 192.8334901395799, target: LatLng(31.736474, 34.976774), tilt: 59.440717697143555, zoom: 19.151926040649414);
 
   @override
-  void didChangeDependencies() {
+  void didChangeDependencies() async {
     if (isInit) {
       isInit = false;
       markers = Set.from([]);
       markerProvider = Provider.of<MarkerProvider>(context);
+      final SharedPreferences prefs = await _prefs;
+
+      MarkerProvider.fontSize = (prefs.getDouble('fontSize') ?? 14);
+      MarkerProvider.fIndex = (prefs.getInt('fIndex') ?? 0);
       createMarker(context);
     }
     // TODO: implement didChangeDependencies

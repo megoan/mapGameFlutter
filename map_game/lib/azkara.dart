@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:map_game/appColors.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Azkara extends StatefulWidget {
   @override
@@ -11,11 +12,25 @@ class Azkara extends StatefulWidget {
 
 class _AzkaraState extends State<Azkara> {
   TextEditingController otiotController = new TextEditingController();
-
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   List<String> letters = [];
-  List<String> fonts = ["Roboto","Shofar", "Ezra", "Alef"];
-  int index=0;
-  double fontSize = 18;
+  bool isInit = true;
+  SharedPreferences prefs;
+  @override
+  void didChangeDependencies() async {
+    if (isInit) {
+      prefs = await _prefs;
+    }
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    otiotController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     MarkerProvider markerProvider = Provider.of<MarkerProvider>(context);
@@ -31,19 +46,20 @@ class _AzkaraState extends State<Azkara> {
                 color: Colors.white,
               ),
               onPressed: () {
-                if (fontSize < 60) {
+                if (MarkerProvider.fontSize < 60) {
                   setState(() {
-                    fontSize += 2;
-                    print(fontSize);
+                    MarkerProvider.fontSize += 2;
+                    prefs.setDouble("fontSize", MarkerProvider.fontSize);
                   });
                 }
               }),
           IconButton(
               icon: FaIcon(FontAwesomeIcons.compressArrowsAlt, color: Colors.white),
               onPressed: () {
-                if (fontSize > 0) {
+                if (MarkerProvider.fontSize > 0) {
                   setState(() {
-                    fontSize -= 2;
+                    MarkerProvider.fontSize -= 2;
+                    prefs.setDouble("fontSize", MarkerProvider.fontSize);
                   });
                 }
               }),
@@ -52,7 +68,12 @@ class _AzkaraState extends State<Azkara> {
                 FontAwesomeIcons.font,
                 color: Colors.white,
               ),
-              onPressed: null)
+              onPressed: () {
+                setState(() {
+                  MarkerProvider.fIndex = (MarkerProvider.fIndex + 1) % MarkerProvider.fonts.length;
+                  prefs.setInt("fIndex", MarkerProvider.fIndex);
+                });
+              })
         ],
       ),
       body: SingleChildScrollView(
@@ -65,7 +86,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilimPerek[32],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize,fontFamily: fonts[index+1]),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -75,7 +96,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilim[32],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -84,7 +105,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     MarkerProvider.tehilimPerek[15],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -94,7 +115,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilim[15],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -103,7 +124,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     MarkerProvider.tehilimPerek[16],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -113,7 +134,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilim[16],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -122,7 +143,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     MarkerProvider.tehilimPerek[71],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -132,7 +153,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilim[71],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -141,7 +162,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     MarkerProvider.tehilimPerek[103],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -151,7 +172,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilim[103],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -160,7 +181,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     MarkerProvider.tehilimPerek[129],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -170,7 +191,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.tehilim[129],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -193,7 +214,10 @@ class _AzkaraState extends State<Azkara> {
                   height: 30,
                 ),
                 Container(
-                  child: Text("אותיות נשמה"),
+                  child: Text(
+                    "אותיות נשמה",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.grey),
+                  ),
                 ),
                 SizedBox(
                   height: 10,
@@ -201,7 +225,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     "נ",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -211,7 +235,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.otiot["נ"],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -220,7 +244,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     "ש",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -230,7 +254,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.otiot["ש"],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -239,7 +263,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     "מ",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -249,7 +273,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.otiot["מ"],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -258,7 +282,7 @@ class _AzkaraState extends State<Azkara> {
                 Container(
                   child: Text(
                     "ה",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -268,7 +292,7 @@ class _AzkaraState extends State<Azkara> {
                   child: Text(
                     MarkerProvider.otiot["ה"],
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
                   ),
                 ),
                 SizedBox(
@@ -292,7 +316,7 @@ class _AzkaraState extends State<Azkara> {
             Container(
               child: Text(
                 "$l",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
               ),
             ),
           );
@@ -306,7 +330,7 @@ class _AzkaraState extends State<Azkara> {
               child: Text(
                 MarkerProvider.otiot[l],
                 textDirection: TextDirection.rtl,
-                style: TextStyle(fontSize: fontSize),
+                style: TextStyle(fontSize: MarkerProvider.fontSize, fontFamily: MarkerProvider.fonts[MarkerProvider.fIndex]),
               ),
             ),
           );
