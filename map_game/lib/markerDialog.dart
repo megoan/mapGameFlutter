@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:map_game/models/pMarker.dart';
@@ -191,6 +192,14 @@ class _MarkerDialogState extends State<MarkerDialog> {
                         ],
                       ),
                       onPressed: () {
+                        final DocumentReference postRef = Firestore.instance.collection('mainInfo').document('VMJmDoyA9cVBJ8eyOVSo');
+                        Firestore.instance.runTransaction((Transaction tx) async {
+                          DocumentSnapshot postSnapshot = await tx.get(postRef);
+                          if (postSnapshot.exists) {
+                            await tx.update(postRef, <String, dynamic>{'readNum': postSnapshot.data['readNum'] + 1});
+                          }
+                        });
+
                         setState(
                           () {
                             scrollController.animateTo(
@@ -228,20 +237,20 @@ class _MarkerDialogState extends State<MarkerDialog> {
               SizedBox(
                 height: 10,
               ),
-              RaisedButton(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: AppColors.tMainColor, width: 2)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Azkara()),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text("תהילים לאזכרה"),
-                ),
-                color: Colors.white,
-              ),
+              // RaisedButton(
+              //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: AppColors.tMainColor, width: 2)),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => Azkara()),
+              //     );
+              //   },
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(8.0),
+              //     child: Text("תהילים לאזכרה"),
+              //   ),
+              //   color: Colors.white,
+              // ),
               SizedBox(
                 height: 15,
               ),

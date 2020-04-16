@@ -7,6 +7,7 @@ import 'package:map_game/appColors.dart';
 import 'package:map_game/models/pMarker.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AddNiftar extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class AddNiftar extends StatefulWidget {
 }
 
 class _AddNiftarState extends State<AddNiftar> {
+  final databaseReference = Firestore.instance;
   Completer<GoogleMapController> _controller = Completer();
   Set<Marker> markers;
   BitmapDescriptor customIcon;
@@ -28,6 +30,8 @@ class _AddNiftarState extends State<AddNiftar> {
     zoom: 0.0,
   );
   Marker marker;
+
+  bool mapIsLoading = false;
   @override
   void dispose() {
     fullNameController.dispose();
@@ -56,7 +60,7 @@ class _AddNiftarState extends State<AddNiftar> {
   createMarker(context) {
     if (customIcon == null) {
       ImageConfiguration configuration = createLocalImageConfiguration(context);
-      BitmapDescriptor.fromAssetImage(configuration, 'assets/candle3.png').then((icon) {
+      BitmapDescriptor.fromAssetImage(configuration, 'assets/star3.png').then((icon) {
         setState(() {
           customIcon = icon;
         });
@@ -98,7 +102,7 @@ class _AddNiftarState extends State<AddNiftar> {
                   SizedBox(
                     width: 20,
                   ),
-                  Text('click on the map to choose a location'),
+                  Text('לחץ על המפה לבחור מיקום'),
                 ],
               ));
 // Find the Scaffold in the widget tree and use it to show a SnackBar.
@@ -129,7 +133,7 @@ class _AddNiftarState extends State<AddNiftar> {
                               width: width - 30,
                               child: TextField(
                                 controller: fullNameController,
-                                decoration: InputDecoration(hintText: 'Enter full name: israel son of israel'),
+                                decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
                               ),
                             ),
                             SizedBox(
@@ -149,10 +153,11 @@ class _AddNiftarState extends State<AddNiftar> {
                                         style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tSadColor),
                                       )),
                                   RaisedButton(
-                                      onPressed: () {
+                                      onPressed: ()async {
                                         if (fullNameController.text.toString() != "") {
-                                          PMarker pm = PMarker("34345", TYPE.YIZKOR, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
-                                          markerProvider.addMarker(pm);
+                                          PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
+                                          //markerProvider.addMarker(pm);
+                                          await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0,'type':"refua","createdAt":DateTime.now(),"loc":GeoPoint(marker.position.latitude, marker.position.longitude)});
                                           Navigator.pop(context, pm);
                                         } else {
                                           final snackBar = SnackBar(
@@ -162,7 +167,7 @@ class _AddNiftarState extends State<AddNiftar> {
                                               SizedBox(
                                                 width: 20,
                                               ),
-                                              Text('please complete all fields'),
+                                              Text('חובה למלא את השדות'),
                                             ],
                                           ));
 // Find the Scaffold in the widget tree and use it to show a SnackBar.
@@ -201,21 +206,33 @@ class _AddNiftarState extends State<AddNiftar> {
         body: Container(
           child: Stack(
             children: <Widget>[
-              GoogleMap(
-                onTap: (latLng) {
-                  print(latLng);
-                  marker = Marker(markerId: MarkerId('1'), icon: customIcon, position: latLng, onTap: null);
+              Opacity(
+                opacity: mapIsLoading ? 1 : 0,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              Opacity(
+                opacity: mapIsLoading ? 0 : 1,
+                child: GoogleMap(
+                  onTap: (latLng) {
+                    print(latLng);
+                    marker = Marker(markerId: MarkerId('1'), icon: customIcon, position: latLng, onTap: null);
 
-                  setState(() {
-                    markers.add(marker);
-                  });
-                },
-                markers: markers,
-                mapType: MapType.satellite,
-                initialCameraPosition: _kGooglePlex,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
+                    setState(() {
+                      markers.add(marker);
+                    });
+                  },
+                  markers: markers,
+                  mapType: MapType.satellite,
+                  initialCameraPosition: _kGooglePlex,
+                  onMapCreated: (GoogleMapController controller) {
+                    setState(() {
+                      mapIsLoading = false;
+                    });
+                    _controller.complete(controller);
+                  },
+                ),
               ),
               Align(
                 alignment: Alignment.topCenter,
@@ -227,42 +244,48 @@ class _AddNiftarState extends State<AddNiftar> {
                       children: <Widget>[
                         Flexible(
                           child: Container(
-                              decoration: new BoxDecoration(color: Colors.white, borderRadius: new BorderRadius.all(new Radius.circular(25.7))),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: TextField(
-                                  controller: textEditingController,
-                                  decoration: InputDecoration(
-                                    hintText: "Enter Address",
-                                    suffixIcon: GestureDetector(
-                                      child: Icon(Icons.search),
-                                      onTap: () {
-                                        addressSearch = textEditingController.text.toString();
-                                        goToAdress(addressSearch);
-                                      },
-                                    ),
-                                    border: InputBorder.none,
+                            decoration: new BoxDecoration(color: Colors.white, borderRadius: new BorderRadius.all(new Radius.circular(25.7))),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: TextField(
+                                controller: textEditingController,
+                                decoration: InputDecoration(
+                                  hintText: "כתובת",
+                                  suffixIcon: GestureDetector(
+                                    child: Icon(Icons.search),
+                                    onTap: () {
+                                      addressSearch = textEditingController.text.toString();
+                                      goToAdress(addressSearch);
+                                    },
                                   ),
-                                  onSubmitted: (val) {
-                                    addressSearch = val;
-                                    goToAdress(addressSearch);
-                                  },
+                                  border: InputBorder.none,
                                 ),
-                              )),
+                                onSubmitted: (val) {
+                                  addressSearch = val;
+                                  goToAdress(addressSearch);
+                                },
+                              ),
+                            ),
+                          ),
                         ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        GestureDetector(
-                            onTap: () async {
-                              Position position = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
-                              _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(position.latitude, position.longitude), tilt: 59.440717697143555, zoom: 19.151926040649414));
-                            },
-                            child: Icon(
-                              Icons.my_location,
-                              size: 36,
-                              color: AppColors.tHappyColor,
-                            ))
+                        // SizedBox(
+                        //   width: 20,
+                        // ),
+                        // GestureDetector(
+                        //     onTap: () async {
+                        //       Position position = await Geolocator().getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
+                        //       if (position == null) {
+                        //         Geolocator geolocator = Geolocator()..forceAndroidLocationManager = true;
+                        //         GeolocationStatus geolocationStatus  = await geolocator.checkGeolocationPermissionStatus();
+                        //         position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+                        //       }
+                        //       _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(position.latitude, position.longitude), tilt: 59.440717697143555, zoom: 19.151926040649414));
+                        //     },
+                        //     child: Icon(
+                        //       Icons.my_location,
+                        //       size: 36,
+                        //       color: AppColors.tHappyColor,
+                        //     ))
                       ],
                     ),
                   ),

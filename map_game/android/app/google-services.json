@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "199501620688",
+    "firebase_url": "https://pray-19e20.firebaseio.com",
+    "project_id": "pray-19e20",
+    "storage_bucket": "pray-19e20.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199501620688:android:76c44dfa87c950ab1505d5",
+        "android_client_info": {
+          "package_name": "com.example.map_game"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "199501620688-lksdtrdqknu6takq243b4fvj637kkhg2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjrUWbfEHYBc0qgoFxCDq6woaVX2e5MMM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "199501620688-lksdtrdqknu6takq243b4fvj637kkhg2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -7,8 +7,8 @@ import 'package:map_game/models/pMarker.dart';
 
 class MarkerProvider extends ChangeNotifier {
   List<PMarker> pmarkers = [
-    //PMarker("1",TYPE.YIZKOR, "name", "fatherName", 1, DateTime.now(), 31.736474, 34.976774),
-    //PMarker("2",TYPE.YIZKOR, "name", "fatherName", 1, DateTime.now(), 31.737, 34.976773),
+    //PMarker("1",TYPE.REFUA, "name", "fatherName", 1, DateTime.now(), 31.736474, 34.976774),
+    //PMarker("2",TYPE.REFUA, "name", "fatherName", 1, DateTime.now(), 31.737, 34.976773),
   ];
   static List<String> fonts = ["Roboto", "Shofar", "Ezra", "Alef"];
   static int fIndex = 0;
@@ -382,12 +382,12 @@ class MarkerProvider extends ChangeNotifier {
     tehilim.add("הַלְלוּ יָהּ שִׁירוּ לַיהוָה שִׁיר חָדָשׁ תְּהִלָּתוֹ בִּקְהַל חֲסִידִים. יִשְׂמַח יִשְׂרָאֵל בְּעֹשָׂיו בְּנֵי צִיּוֹן יָגִילוּ בְמַלְכָּם. יְהַלְלוּ שְׁמוֹ בְמָחוֹל בְּתֹף וְכִנּוֹר יְזַמְּרוּ לוֹ. כִּי רוֹצֶה יְהוָה בְּעַמּוֹ יְפָאֵר עֲנָוִים בִּישׁוּעָה. יַעְלְזוּ חֲסִידִים בְּכָבוֹד יְרַנְּנוּ עַל מִשְׁכְּבוֹתָם. רוֹמְמוֹת אֵל בִּגְרוֹנָם וְחֶרֶב פִּיפִיּוֹת בְּיָדָם. לַעֲשׂוֹת נְקָמָה בַּגּוֹיִם תּוֹכֵחֹת בַּל אֻמִּים. לֶאְסֹר מַלְכֵיהֶם בְּזִקִּים וְנִכְבְּדֵיהֶם בְּכַבְלֵי בַרְזֶל. לַעֲשׂוֹת בָּהֶם מִשְׁפָּט כָּתוּב הָדָר הוּא לְכָל חֲסִידָיו הַלְלוּ יָהּ.");
     tehilim.add("הַלְלוּ יָהּ הַלְלוּ אֵל בְּקָדְשׁוֹ הַלְלוּהוּ בִּרְקִיעַ עֻזּוֹ. הַלְלוּהוּ בִגְבוּרֹתָיו הַלְלוּהוּ כְּרֹב גֻּדְלוֹ. הַלְלוּהוּ בְּתֵקַע שׁוֹפָר הַלְלוּהוּ בְּנֵבֶל וְכִנּוֹר. הַלְלוּהוּ בְתֹף וּמָחוֹל הַלְלוּהוּ בְּמִנִּים וְעוּגָב. הַלְלוּהוּ בְצִלְצְלֵי שָׁמַע הַלְלוּהוּ בְּצִלְצְלֵי תְרוּעָה. כֹּל הַנְּשָׁמָה תְּהַלֵּל יָהּ הַלְלוּ יָהּ.");
 
-    for (var i = 0; i < 10; i++) {
-      double a = r.nextDouble();
-      double b = r.nextDouble();
-      double c = r.nextDouble();
-      pmarkers.add(PMarker((i + 1).toString(), TYPE.YIZKOR, "ישראל" + i.toString(), 1, DateTime.now(), 31.736474 + (c < 0.5 ? (a * -8) : a * 8), 34.976774 + (c < 0.5 ? (b * -8) : b * 8)));
-    }
+    // for (var i = 0; i < 10; i++) {
+    //   double a = r.nextDouble();
+    //   double b = r.nextDouble();
+    //   double c = r.nextDouble();
+    //   pmarkers.add(PMarker((i + 1).toString(), TYPE.REFUA, "ישראל" + i.toString(), 1, DateTime.now(), 31.736474 + (c < 0.5 ? (a * -8) : a * 8), 34.976774 + (c < 0.5 ? (b * -8) : b * 8)));
+    // }
   }
   Future<int> addMarker(PMarker pMarker) async {
     pmarkers.add(pMarker);

@@ -9,6 +9,9 @@ import 'package:map_game/models/pMarker.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'counter.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,6 +38,7 @@ class MapSample extends StatefulWidget {
 }
 
 class MapSampleState extends State<MapSample> {
+  final databaseReference = Firestore.instance;
   Completer<GoogleMapController> _controller = Completer();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Set<Marker> markers;
@@ -43,11 +47,45 @@ class MapSampleState extends State<MapSample> {
   MarkerProvider markerProvider;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(31.736474, 34.976774),
-    zoom: 0.0,
+    target: LatLng(31.778113, 35.232285),
+    zoom: 7.7,
   );
-
-  static final CameraPosition _kLake = CameraPosition(bearing: 192.8334901395799, target: LatLng(31.736474, 34.976774), tilt: 59.440717697143555, zoom: 19.151926040649414);
+  bool mapIsLoading = true;
+  static final CameraPosition _kLake = CameraPosition(bearing: 192.8334901395799, target: LatLng(31.778113, 35.232285), tilt: 59.440717697143555, zoom: 19.151926040649414);
+  void populateRefua() {
+    markers = Set.from([]);
+    markerProvider.pmarkers = [];
+    ImageConfiguration configuration = createLocalImageConfiguration(context);
+    Future.wait([BitmapDescriptor.fromAssetImage(configuration, 'assets/star3.png'), Firestore.instance.collection('sick').getDocuments()]).then((onValue) {
+      setState(() {
+        customIcon = onValue[0];
+        QuerySnapshot docs = onValue[1] as QuerySnapshot;
+        for (int i = 0; i < docs.documents.length; ++i) {
+     
+          markerProvider.pmarkers.add(PMarker(
+            i.toString(),
+            docs.documents[i].data["type"] == "refua" ? TYPE.REFUA : TYPE.YIZKOR,
+            docs.documents[i].data["fullName"],
+            docs.documents[i].data["chapterCount"],
+            docs.documents[i].data["createdAt"].toDate(),
+            docs.documents[i].data["loc"].latitude,
+            docs.documents[i].data["loc"].longitude,
+          ));
+          Marker m = Marker(
+              markerId: MarkerId(i.toString()),
+              icon: customIcon,
+              position: LatLng(
+                docs.documents[i].data["loc"].latitude,
+                docs.documents[i].data["loc"].longitude,
+              ),
+              onTap: () {
+                showDialog(context: context, builder: (_) => MarkerDialog(markerProvider.pmarkers[i]));
+              });
+          markers.add(m);
+        }
+      });
+    });
+  }
 
   @override
   void didChangeDependencies() async {
@@ -59,7 +97,9 @@ class MapSampleState extends State<MapSample> {
 
       MarkerProvider.fontSize = (prefs.getDouble('fontSize') ?? 14);
       MarkerProvider.fIndex = (prefs.getInt('fIndex') ?? 0);
-      createMarker(context);
+      // populateRefua();
+      populateRefua();
+      // createMarker(context);
     }
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
@@ -75,19 +115,19 @@ class MapSampleState extends State<MapSample> {
   createMarker(context) {
     if (customIcon == null) {
       ImageConfiguration configuration = createLocalImageConfiguration(context);
-      BitmapDescriptor.fromAssetImage(configuration, 'assets/candle3.png').then((icon) {
+      BitmapDescriptor.fromAssetImage(configuration, 'assets/star3.png').then((icon) {
         setState(() {
           customIcon = icon;
-          for (var item in markerProvider.pmarkers) {
-            Marker m = Marker(
-                markerId: MarkerId(item.id),
-                icon: customIcon,
-                position: LatLng(item.lat, item.lon),
-                onTap: () {
-                  showDialog(context: context, builder: (_) => MarkerDialog(item));
-                });
-            markers.add(m);
-          }
+          // for (var item in markerProvider.pmarkers) {
+          //   Marker m = Marker(
+          //       markerId: MarkerId(item.id),
+          //       icon: customIcon,
+          //       position: LatLng(item.lat, item.lon),
+          //       onTap: () {
+          //         showDialog(context: context, builder: (_) => MarkerDialog(item));
+          //       });
+          //   markers.add(m);
+          // }
         });
       });
     }
@@ -103,34 +143,41 @@ class MapSampleState extends State<MapSample> {
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              child: GoogleMap(
-                onTap: (latLng) {
-                  print(latLng);
-                  Marker m = Marker(
-                      markerId: MarkerId('1'),
-                      icon: customIcon,
-                      position: latLng,
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                                  title: new Text("Dialog Title"),
-                                  content: new Text("This is my content"),
-                                ));
-                      });
-                  setState(() {
-                    markers.add(m);
-                  });
-                },
-                markers: markers,
-                mapType: MapType.satellite,
-                initialCameraPosition: _kGooglePlex,
-                onMapCreated: (GoogleMapController controller) {
-                  _controller.complete(controller);
-                },
+            Opacity(
+              opacity: mapIsLoading ? 0 : 1,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: GoogleMap(
+                  onCameraMove: (p) {},
+                  // onTap: (latLng) {
+                  //   print(latLng);
+                  //   Marker m = Marker(
+                  //       markerId: MarkerId('1'),
+                  //       icon: customIcon,
+                  //       position: latLng,
+                  //       onTap: () {
+                  //         showDialog(
+                  //             context: context,
+                  //             builder: (_) => AlertDialog(
+                  //                   title: new Text("Dialog Title"),
+                  //                   content: new Text("This is my content"),
+                  //                 ));
+                  //       });
+                  //   setState(() {
+                  //     markers.add(m);
+                  //   });
+                  // },
+                  markers: markers,
+                  mapType: MapType.satellite,
+                  initialCameraPosition: _kGooglePlex,
+                  onMapCreated: (GoogleMapController controller) {
+                    setState(() {
+                      mapIsLoading = false;
+                    });
+                    _controller.complete(controller);
+                  },
+                ),
               ),
             ),
             Align(
@@ -186,7 +233,7 @@ class MapSampleState extends State<MapSample> {
                                               SizedBox(
                                                 width: width - 30,
                                                 child: TextField(
-                                                  decoration: InputDecoration(hintText: 'Enter a search term'),
+                                                  decoration: InputDecoration(hintText: 'חפש שם'),
                                                 ),
                                               ),
                                               SizedBox(height: 15),
@@ -253,7 +300,7 @@ class MapSampleState extends State<MapSample> {
                                                   child: Padding(
                                                     padding: const EdgeInsets.all(8.0),
                                                     child: Text(
-                                                      "הוסף נפטר",
+                                                      "הוסף חולה",
                                                       style: TextStyle(color: AppColors.tSadColor),
                                                     ),
                                                   ),
@@ -326,7 +373,7 @@ class MapSampleState extends State<MapSample> {
                             CircleAvatar(
                               radius: 28,
                               backgroundColor: AppColors.tMainColor,
-                              child: Image.asset('assets/candle3.png'),
+                              child: Image.asset('assets/star3.png'),
                             ),
                           ],
                         ),
@@ -345,13 +392,19 @@ class MapSampleState extends State<MapSample> {
                         SizedBox(
                           height: 8,
                         ),
-                        Text("12,000", style: TextStyle(fontSize: 18, color: AppColors.tHappyColor)),
+                        CounterText(),
                       ], crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center)
                     ]),
                   ),
                 ]),
               ),
-            )
+            ),
+            Opacity(
+              opacity: mapIsLoading ? 1 : 0,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
           ],
         ),
       ),
@@ -373,7 +426,6 @@ class MapSampleState extends State<MapSample> {
   Future<void> _goToMarker(CameraPosition position) async {
     final GoogleMapController controller = await _controller.future;
     await controller.animateCamera(CameraUpdate.newCameraPosition(position));
-    print("hhhhhhhhhhh");
     return;
   }
 }
