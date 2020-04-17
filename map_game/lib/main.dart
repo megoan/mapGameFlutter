@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Flutter Google Maps Demo',
+        title: 'תהילים עולמי',
         home: MapSample(),
       ),
     );
