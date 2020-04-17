@@ -13,7 +13,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'counter.dart';
 
-void main() => runApp(MyApp());
+
+
+void main()async { 
+  MarkerProvider.startLan = 31.778113;
+  MarkerProvider.startLon = 35.232285;
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  MarkerProvider.startLan = ((prefs.getDouble('lan')) ?? 31.778113);
+  MarkerProvider.startLon = ((prefs.getDouble('lon')) ?? 35.232285);
+  runApp(MyApp());}
 
 class MyApp extends StatelessWidget {
   @override
@@ -46,8 +55,10 @@ class MapSampleState extends State<MapSample> {
   bool isInit = true;
   MarkerProvider markerProvider;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
+  SharedPreferences prefs;
+  
   static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(31.778113, 35.232285),
+    target: LatLng(MarkerProvider.startLan, MarkerProvider.startLon),
     zoom: 7.7,
   );
   bool mapIsLoading = true;
@@ -61,7 +72,6 @@ class MapSampleState extends State<MapSample> {
         customIcon = onValue[0];
         QuerySnapshot docs = onValue[1] as QuerySnapshot;
         for (int i = 0; i < docs.documents.length; ++i) {
-     
           markerProvider.pmarkers.add(PMarker(
             i.toString(),
             docs.documents[i].data["type"] == "refua" ? TYPE.REFUA : TYPE.YIZKOR,
@@ -79,6 +89,8 @@ class MapSampleState extends State<MapSample> {
                 docs.documents[i].data["loc"].longitude,
               ),
               onTap: () {
+                prefs.setDouble("lat", docs.documents[i].data["loc"].latitude);
+                prefs.setDouble("lat", docs.documents[i].data["loc"].longitude);
                 showDialog(context: context, builder: (_) => MarkerDialog(markerProvider.pmarkers[i]));
               });
           markers.add(m);
@@ -93,7 +105,8 @@ class MapSampleState extends State<MapSample> {
       isInit = false;
       markers = Set.from([]);
       markerProvider = Provider.of<MarkerProvider>(context);
-      final SharedPreferences prefs = await _prefs;
+      prefs = await _prefs;
+      
 
       MarkerProvider.fontSize = (prefs.getDouble('fontSize') ?? 14);
       MarkerProvider.fIndex = (prefs.getInt('fIndex') ?? 0);
@@ -320,6 +333,8 @@ class MapSampleState extends State<MapSample> {
                                     icon: customIcon,
                                     position: LatLng(tempMarker.lat, tempMarker.lon),
                                     onTap: () {
+                                      prefs.setDouble("lat", tempMarker.lat);
+                                      prefs.setDouble("lat", tempMarker.lon);
                                       showDialog(context: context, builder: (_) => MarkerDialog(tempMarker));
                                     });
                                 setState(() {

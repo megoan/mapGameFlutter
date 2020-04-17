@@ -26,11 +26,11 @@ class _AddNiftarState extends State<AddNiftar> {
   TextEditingController textEditingController = new TextEditingController();
   TextEditingController fullNameController = new TextEditingController();
   static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(31.736474, 34.976774),
+    target: LatLng(MarkerProvider.startLan, MarkerProvider.startLon),
     zoom: 0.0,
   );
   Marker marker;
-
+  bool isSaving = false;
   bool mapIsLoading = false;
   @override
   void dispose() {
@@ -96,22 +96,23 @@ class _AddNiftarState extends State<AddNiftar> {
           onPressed: () {
             if (marker == null) {
               final snackBar = SnackBar(
-                  content: Row(
-                children: <Widget>[
-                  Icon(Icons.warning),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Text('לחץ על המפה לבחור מיקום'),
-                ],
-              ));
-// Find the Scaffold in the widget tree and use it to show a SnackBar.
+                content: Row(
+                  children: <Widget>[
+                    Icon(Icons.warning),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text('לחץ על המפה לבחור מיקום'),
+                  ],
+                ),
+              );
               _scaffoldKey.currentState.showSnackBar(snackBar);
             } else {
               double width = MediaQuery.of(context).size.width;
               double height = MediaQuery.of(context).size.height;
               showDialog(
                 context: context,
+                barrierDismissible:isSaving? false:true,
                 builder: (_) => AlertDialog(
                   contentPadding: EdgeInsets.all(0),
                   backgroundColor: Colors.transparent,
@@ -119,7 +120,6 @@ class _AddNiftarState extends State<AddNiftar> {
                   content: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      // gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.tGradientTop, AppColors.tGradientBottom], stops: [0.0, 1.0]),
                       borderRadius: BorderRadius.all(
                         Radius.circular(25.0),
                       ),
@@ -145,19 +145,22 @@ class _AddNiftarState extends State<AddNiftar> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: <Widget>[
                                   FlatButton(
-                                      onPressed: () {
+                                      onPressed:isSaving? () {
                                         Navigator.pop(context);
-                                      },
+                                      }:null,
                                       child: Text(
                                         "ביטול",
                                         style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tSadColor),
                                       )),
                                   RaisedButton(
-                                      onPressed: ()async {
+                                      onPressed: () async {
                                         if (fullNameController.text.toString() != "") {
+                                          setState(() {
+                                            isSaving = true;
+                                          });
                                           PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
                                           //markerProvider.addMarker(pm);
-                                          await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0,'type':"refua","createdAt":DateTime.now(),"loc":GeoPoint(marker.position.latitude, marker.position.longitude)});
+                                          await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
                                           Navigator.pop(context, pm);
                                         } else {
                                           final snackBar = SnackBar(
@@ -170,7 +173,7 @@ class _AddNiftarState extends State<AddNiftar> {
                                               Text('חובה למלא את השדות'),
                                             ],
                                           ));
-// Find the Scaffold in the widget tree and use it to show a SnackBar.
+
                                           _scaffoldKey.currentState.showSnackBar(snackBar);
                                         }
                                       },
@@ -178,10 +181,10 @@ class _AddNiftarState extends State<AddNiftar> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(30),
                                       ),
-                                      child: Text(
+                                      child: !isSaving?Text(
                                         "אישור",
                                         style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
-                                      ))
+                                      ):CircularProgressIndicator( valueColor: AlwaysStoppedAnimation<Color>(AppColors.tLightTextColor),))
                                 ],
                               ),
                             )

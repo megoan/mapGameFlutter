@@ -24,6 +24,7 @@ class _MarkerDialogState extends State<MarkerDialog> {
   ScrollController scrollController = new ScrollController();
   bool isInit = true;
   SharedPreferences prefs;
+  bool justRead = false;
   @override
   void didChangeDependencies() async {
     if (isInit) {
@@ -191,26 +192,34 @@ class _MarkerDialogState extends State<MarkerDialog> {
                           ),
                         ],
                       ),
-                      onPressed: () {
-                        final DocumentReference postRef = Firestore.instance.collection('mainInfo').document('VMJmDoyA9cVBJ8eyOVSo');
-                        Firestore.instance.runTransaction((Transaction tx) async {
-                          DocumentSnapshot postSnapshot = await tx.get(postRef);
-                          if (postSnapshot.exists) {
-                            await tx.update(postRef, <String, dynamic>{'readNum': postSnapshot.data['readNum'] + 1});
-                          }
-                        });
+                      onPressed: (!justRead)
+                          ? () {
+                              justRead = true;
+                              Future.delayed(Duration(seconds: 5), () {
+                                setState(() {
+                                  justRead = false;
+                                });
+                              });
+                              final DocumentReference postRef = Firestore.instance.collection('mainInfo').document('VMJmDoyA9cVBJ8eyOVSo');
+                              Firestore.instance.runTransaction((Transaction tx) async {
+                                DocumentSnapshot postSnapshot = await tx.get(postRef);
+                                if (postSnapshot.exists) {
+                                  await tx.update(postRef, <String, dynamic>{'readNum': postSnapshot.data['readNum'] + 1});
+                                }
+                              });
 
-                        setState(
-                          () {
-                            scrollController.animateTo(
-                              0.0,
-                              curve: Curves.easeOut,
-                              duration: const Duration(milliseconds: 300),
-                            );
-                            index = ((index + 1) % 150);
-                          },
-                        );
-                      }),
+                              setState(
+                                () {
+                                  scrollController.animateTo(
+                                    0.0,
+                                    curve: Curves.easeOut,
+                                    duration: const Duration(milliseconds: 300),
+                                  );
+                                  index = ((index + 1) % 150);
+                                },
+                              );
+                            }
+                          : null),
                   RaisedButton(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),

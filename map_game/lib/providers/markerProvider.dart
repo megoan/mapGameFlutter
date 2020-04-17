@@ -10,6 +10,8 @@ class MarkerProvider extends ChangeNotifier {
     //PMarker("1",TYPE.REFUA, "name", "fatherName", 1, DateTime.now(), 31.736474, 34.976774),
     //PMarker("2",TYPE.REFUA, "name", "fatherName", 1, DateTime.now(), 31.737, 34.976773),
   ];
+  static double startLan = 31.778113;
+  static double startLon = 35.232285;
   static List<String> fonts = ["Roboto", "Shofar", "Ezra", "Alef"];
   static int fIndex = 0;
   static double fontSize = 14;
