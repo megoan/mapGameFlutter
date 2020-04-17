@@ -72,7 +72,7 @@ class _AddNiftarState extends State<AddNiftar> {
     List<Placemark> placemarks = await Geolocator().placemarkFromAddress(address);
     if (placemarks != null && placemarks.length > 0) {
       Placemark placemark = placemarks[0];
-      _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(placemark.position.latitude, placemark.position.longitude), tilt: 59.440717697143555, zoom: 19.151926040649414));
+      _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(placemark.position.latitude, placemark.position.longitude), tilt: 59.440717697143555, zoom: 15));
       marker = Marker(markerId: MarkerId('1'), icon: customIcon, position: LatLng(placemark.position.latitude, placemark.position.longitude), onTap: null);
 
       setState(() {
@@ -90,7 +90,7 @@ class _AddNiftarState extends State<AddNiftar> {
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: AppColors.tMainColor,
           label: Text(
-            "שמור",
+            "הוסף שם ושמור",
             style: TextStyle(color: AppColors.tSadColor),
           ),
           onPressed: () {
@@ -112,86 +112,96 @@ class _AddNiftarState extends State<AddNiftar> {
               double height = MediaQuery.of(context).size.height;
               showDialog(
                 context: context,
-                barrierDismissible:isSaving? false:true,
+                barrierDismissible: false,
                 builder: (_) => AlertDialog(
                   contentPadding: EdgeInsets.all(0),
                   backgroundColor: Colors.transparent,
                   elevation: 5,
-                  content: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(25.0),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(
-                              width: width - 30,
-                              child: TextField(
-                                controller: fullNameController,
-                                decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 40,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  FlatButton(
-                                      onPressed:isSaving? () {
-                                        Navigator.pop(context);
-                                      }:null,
-                                      child: Text(
-                                        "ביטול",
-                                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tSadColor),
-                                      )),
-                                  RaisedButton(
-                                      onPressed: () async {
-                                        if (fullNameController.text.toString() != "") {
-                                          setState(() {
-                                            isSaving = true;
-                                          });
-                                          PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
-                                          //markerProvider.addMarker(pm);
-                                          await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
-                                          Navigator.pop(context, pm);
-                                        } else {
-                                          final snackBar = SnackBar(
-                                              content: Row(
-                                            children: <Widget>[
-                                              Icon(Icons.warning),
-                                              SizedBox(
-                                                width: 20,
-                                              ),
-                                              Text('חובה למלא את השדות'),
-                                            ],
-                                          ));
-
-                                          _scaffoldKey.currentState.showSnackBar(snackBar);
-                                        }
-                                      },
-                                      color: AppColors.tSadColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: !isSaving?Text(
-                                        "אישור",
-                                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
-                                      ):CircularProgressIndicator( valueColor: AlwaysStoppedAnimation<Color>(AppColors.tLightTextColor),))
-                                ],
-                              ),
-                            )
-                          ],
+                  content: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(25.0),
+                          ),
                         ),
-                      ),
-                    ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: <Widget>[
+                                SizedBox(
+                                  width: width - 30,
+                                  child: TextField(
+                                    controller: fullNameController,
+                                    decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 40,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      FlatButton(
+                                          onPressed: !isSaving
+                                              ? () {
+                                                  Navigator.pop(context);
+                                                }
+                                              : null,
+                                          child: Text(
+                                            "ביטול",
+                                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tSadColor),
+                                          )),
+                                      RaisedButton(
+                                          onPressed: () async {
+                                            if (fullNameController.text.toString() != "") {
+                                              setState(() {
+                                                isSaving = true;
+                                              });
+                                              PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
+                                              markerProvider.addMarker(pm);
+                                              await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
+                                              Navigator.pop(context, pm);
+                                            } else {
+                                              final snackBar = SnackBar(
+                                                  content: Row(
+                                                children: <Widget>[
+                                                  Icon(Icons.warning),
+                                                  SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  Text('חובה למלא את השדות'),
+                                                ],
+                                              ));
+
+                                              _scaffoldKey.currentState.showSnackBar(snackBar);
+                                            }
+                                          },
+                                          color: AppColors.tSadColor,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                          child: !isSaving
+                                              ? Text(
+                                                  "אישור",
+                                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
+                                                )
+                                              : CircularProgressIndicator(
+                                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.tLightTextColor),
+                                                ))
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ).then((onValue) {

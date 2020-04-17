@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_game/addNiftar.dart';
 import 'package:map_game/appColors.dart';
@@ -13,16 +14,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'counter.dart';
 
-
-
-void main()async { 
+void main() async {
   MarkerProvider.startLan = 31.778113;
   MarkerProvider.startLon = 35.232285;
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  MarkerProvider.startLan = ((prefs.getDouble('lan')) ?? 31.778113);
+  MarkerProvider.startLan = ((prefs.getDouble('lat')) ?? 31.778113);
   MarkerProvider.startLon = ((prefs.getDouble('lon')) ?? 35.232285);
-  runApp(MyApp());}
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -47,6 +47,7 @@ class MapSample extends StatefulWidget {
 }
 
 class MapSampleState extends State<MapSample> {
+  TextEditingController controller = new TextEditingController();
   final databaseReference = Firestore.instance;
   Completer<GoogleMapController> _controller = Completer();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -56,11 +57,12 @@ class MapSampleState extends State<MapSample> {
   MarkerProvider markerProvider;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   SharedPreferences prefs;
-  
+
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(MarkerProvider.startLan, MarkerProvider.startLon),
     zoom: 7.7,
   );
+  String search = "";
   bool mapIsLoading = true;
   static final CameraPosition _kLake = CameraPosition(bearing: 192.8334901395799, target: LatLng(31.778113, 35.232285), tilt: 59.440717697143555, zoom: 19.151926040649414);
   void populateRefua() {
@@ -90,7 +92,7 @@ class MapSampleState extends State<MapSample> {
               ),
               onTap: () {
                 prefs.setDouble("lat", docs.documents[i].data["loc"].latitude);
-                prefs.setDouble("lat", docs.documents[i].data["loc"].longitude);
+                prefs.setDouble("lon", docs.documents[i].data["loc"].longitude);
                 showDialog(context: context, builder: (_) => MarkerDialog(markerProvider.pmarkers[i]));
               });
           markers.add(m);
@@ -106,7 +108,6 @@ class MapSampleState extends State<MapSample> {
       markers = Set.from([]);
       markerProvider = Provider.of<MarkerProvider>(context);
       prefs = await _prefs;
-      
 
       MarkerProvider.fontSize = (prefs.getDouble('fontSize') ?? 14);
       MarkerProvider.fIndex = (prefs.getInt('fIndex') ?? 0);
@@ -120,9 +121,20 @@ class MapSampleState extends State<MapSample> {
 
   @override
   void initState() {
+    controller.addListener(() {
+      setState(() {
+        search = controller.text;
+      });
+    });
     // markers = Set.from([]);
     // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   createMarker(context) {
@@ -231,98 +243,113 @@ class MapSampleState extends State<MapSample> {
                                     contentPadding: EdgeInsets.all(0),
                                     backgroundColor: Colors.transparent,
                                     elevation: 5,
-                                    content: Container(
-                                      decoration: BoxDecoration(
-                                          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.tGradientTop, AppColors.tGradientBottom], stops: [0.0, 1.0]),
-                                          borderRadius: BorderRadius.all(
-                                            Radius.circular(25.0),
-                                          )),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: <Widget>[
-                                              SizedBox(
-                                                width: width - 30,
-                                                child: TextField(
-                                                  decoration: InputDecoration(hintText: 'חפש שם'),
-                                                ),
-                                              ),
-                                              SizedBox(height: 15),
-                                              SizedBox(
-                                                height: height - 230,
-                                                width: width - 30,
-                                                child: ListView.builder(
-                                                    itemCount: markerProvider.pmarkers.length,
-                                                    itemBuilder: (context, index) {
-                                                      return Card(
-                                                        elevation: 3,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(8),
-                                                        ),
-                                                        child: InkWell(
-                                                          borderRadius: BorderRadius.circular(8),
-                                                          onTap: () async {
-                                                            Navigator.of(context).pop([false, index]);
-                                                          },
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.all(12.0),
-                                                            child: Row(
-                                                              children: <Widget>[
-                                                                Row(
-                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                  children: <Widget>[
-                                                                    // Text(markerProvider.pmarkers[index].name),
-                                                                    // Text(' Son Of '),
-                                                                    Text(markerProvider.pmarkers[index].fullName),
-                                                                  ],
-                                                                ),
-                                                                Icon(
-                                                                  Icons.location_on,
-                                                                  color: AppColors.tMainColor,
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              ButtonTheme(
-                                                minWidth: 200,
-                                                height: 50,
-                                                child: RaisedButton(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(30),
-                                                  ),
-                                                  color: AppColors.tMainColor,
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(builder: (context) => AddNiftar()),
-                                                    ).then((onValue) async {
-                                                      if (onValue != null) {
-                                                        Navigator.pop(context, [true, onValue]);
-                                                      }
-                                                    });
-                                                  },
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: Text(
-                                                      "הוסף חולה",
-                                                      style: TextStyle(color: AppColors.tSadColor),
+                                    content: StatefulBuilder(
+                                      builder: (BuildContext context, StateSetter setState) {
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.tGradientTop, AppColors.tGradientBottom], stops: [0.0, 1.0]),
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(25.0),
+                                              )),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  SizedBox(
+                                                    width: width - 30,
+                                                    child: TextField(
+                                                      decoration: InputDecoration(hintText: 'חפש שם'),
+                                                      onChanged: (val) {
+                                                        setState(() {
+                                                          search = val;
+                                                        });
+                                                      },
                                                     ),
                                                   ),
-                                                ),
+                                                  SizedBox(height: 15),
+                                                  SizedBox(
+                                                    height: height - 230,
+                                                    width: width - 30,
+                                                    child: ListView.builder(
+                                                        itemCount: markerProvider.pmarkers.length,
+                                                        itemBuilder: (context, index) {
+                                                          return (search == "" || markerProvider.pmarkers[index].fullName.toString().toLowerCase().contains(search.toLowerCase()))
+                                                              ? Card(
+                                                                  elevation: 3,
+                                                                  shape: RoundedRectangleBorder(
+                                                                    borderRadius: BorderRadius.circular(8),
+                                                                  ),
+                                                                  child: InkWell(
+                                                                    borderRadius: BorderRadius.circular(8),
+                                                                    onTap: () async {
+                                                                      Navigator.of(context).pop([false, index]);
+                                                                    },
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets.all(12.0),
+                                                                      child: Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                        children: <Widget>[
+                                                                          Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            children: <Widget>[
+                                                                              // Text(markerProvider.pmarkers[index].name),
+                                                                              // Text(' Son Of '),
+                                                                              Container(
+                                                                                width: (width-50)*0.5,
+                                                                                child: Text(markerProvider.pmarkers[index].fullName)),
+                                                                              //Text(markerProvider.pmarkers[index].fullName),
+                                                                            ],
+                                                                          ),
+                                                                          Icon(
+                                                                            FontAwesomeIcons.bookOpen,
+                                                                            color: AppColors.tMainColor.withOpacity(0.5),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              : Container();
+                                                        }),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                  ButtonTheme(
+                                                    minWidth: 200,
+                                                    height: 50,
+                                                    child: RaisedButton(
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(30),
+                                                      ),
+                                                      color: AppColors.tMainColor,
+                                                      onPressed: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => AddNiftar()),
+                                                        ).then((onValue) async {
+                                                          if (onValue != null) {
+                                                            Navigator.pop(context, [true, onValue]);
+                                                          }
+                                                        });
+                                                      },
+                                                      child: Padding(
+                                                        padding: const EdgeInsets.all(8.0),
+                                                        child: Text(
+                                                          "הוסף חולה",
+                                                          style: TextStyle(color: AppColors.tSadColor),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
                                   )).then((index) async {
                             if (index != null) {
@@ -334,7 +361,7 @@ class MapSampleState extends State<MapSample> {
                                     position: LatLng(tempMarker.lat, tempMarker.lon),
                                     onTap: () {
                                       prefs.setDouble("lat", tempMarker.lat);
-                                      prefs.setDouble("lat", tempMarker.lon);
+                                      prefs.setDouble("lon", tempMarker.lon);
                                       showDialog(context: context, builder: (_) => MarkerDialog(tempMarker));
                                     });
                                 setState(() {

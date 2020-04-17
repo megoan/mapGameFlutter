@@ -53,6 +53,7 @@ class _MarkerDialogState extends State<MarkerDialog> {
                 Radius.circular(25.0),
               )),
           child: Column(
+            
             children: <Widget>[
               SizedBox(
                 height: 5,
@@ -60,10 +61,10 @@ class _MarkerDialogState extends State<MarkerDialog> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    //new Text(widget.pMarker.name),
-                    new Text("${widget.pMarker.fullName}"),
+                    Container(width: 200, child: new Text("${widget.pMarker.fullName}", textAlign: TextAlign.center,)),
+                    //new Text("${widget.pMarker.fullName}"),
                     // new Text(widget.pMarker.name),
                   ],
                 ),
