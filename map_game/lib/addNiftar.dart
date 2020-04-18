@@ -157,6 +157,17 @@ class _AddNiftarState extends State<AddNiftar> {
                                             style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tSadColor),
                                           )),
                                       RaisedButton(
+                                           shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30),
+                                          ),
+                                           child: !isSaving
+                                              ? Text(
+                                                  "אישור",
+                                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
+                                                )
+                                              : CircularProgressIndicator(
+                                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.tLightTextColor),
+                                                ),
                                           onPressed: () async {
                                             if (fullNameController.text.toString() != "") {
                                               setState(() {
@@ -182,17 +193,10 @@ class _AddNiftarState extends State<AddNiftar> {
                                             }
                                           },
                                           color: AppColors.tSadColor,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                          child: !isSaving
-                                              ? Text(
-                                                  "אישור",
-                                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
+                                         
+                                         
+                                                
                                                 )
-                                              : CircularProgressIndicator(
-                                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.tLightTextColor),
-                                                ))
                                     ],
                                   ),
                                 )
