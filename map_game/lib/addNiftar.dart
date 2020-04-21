@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -21,6 +22,7 @@ class _AddNiftarState extends State<AddNiftar> {
   BitmapDescriptor customIcon;
   bool isInit = true;
   MarkerProvider markerProvider;
+  final _formKey = GlobalKey<FormState>();
   String addressSearch;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController textEditingController = new TextEditingController();
@@ -40,6 +42,16 @@ class _AddNiftarState extends State<AddNiftar> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      double width = MediaQuery.of(context).size.width;
+      showFillName(width);
+    });
+  }
+
+  @override
   void didChangeDependencies() {
     if (isInit) {
       isInit = false;
@@ -47,6 +59,7 @@ class _AddNiftarState extends State<AddNiftar> {
       markerProvider = Provider.of<MarkerProvider>(context);
       createMarker(context);
     }
+
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
@@ -60,12 +73,157 @@ class _AddNiftarState extends State<AddNiftar> {
   createMarker(context) {
     if (customIcon == null) {
       ImageConfiguration configuration = createLocalImageConfiguration(context);
-      BitmapDescriptor.fromAssetImage(configuration, 'assets/star3.png').then((icon) {
+      BitmapDescriptor.fromAssetImage(configuration, 'assets/book2.png').then((icon) {
         setState(() {
           customIcon = icon;
         });
       });
     }
+  }
+
+  void showFillName(width) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => WillPopScope(
+        onWillPop: () {},
+        child: AlertDialog(
+          contentPadding: EdgeInsets.all(0),
+          backgroundColor: Colors.transparent,
+          elevation: 5,
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(25.0),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SingleChildScrollView(
+                    child: Container(
+                      width: width - 30,
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "הוספת שם לתפילה",
+                              style: TextStyle(fontSize: 18, color: Colors.grey),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Container(width: width - 46, child: Text("אנא מלא/י את שמו/ה של החולה בצורה הבאה",textAlign: TextAlign.center,)),
+                          Text("השם שלו/ה בן/בת שם של אמא שלו/ה"),
+                          SizedBox(
+                            height: 3,
+                          ),
+                          Text(
+                            "לדוגמא: יצחק בן שרה",
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          SizedBox(
+                            width: width - 46,
+                            child: Form(
+                              key: _formKey,
+                              child: TextFormField(
+                                validator: (v) {
+                                  if (v != null && v.trim() != "") {
+                                    return null;
+                                  } else
+                                    return 'הזן שם מלא: פלוני בן אלמוני';
+                                },
+                                controller: fullNameController,
+                                decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 40,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                FlatButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    "ביטול",
+                                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tMainColor),
+                                  ),
+                                ),
+                                RaisedButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Text(
+                                        "בחר/י מיקום במפה",
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
+                                      ),
+                                      // SizedBox(
+                                      //   width: 4,
+                                      // ),
+                                      // Icon(
+                                      //   Icons.location_on,
+                                      //   color: Colors.white,
+                                      // )
+                                    ],
+                                  ),
+                                  onPressed: () async {
+                                    if (_formKey.currentState.validate()) {
+                                      Navigator.pop(context, true);
+                                      // PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
+                                      // markerProvider.addMarker(pm);
+                                      // await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
+                                      // Navigator.pop(context, pm);
+                                    }
+                                    // else {
+                                    //   final snackBar = SnackBar(
+                                    //       content: Row(
+                                    //     children: <Widget>[
+                                    //       Icon(Icons.warning),
+                                    //       SizedBox(
+                                    //         width: 20,
+                                    //       ),
+                                    //       Text('חובה למלא את השם'),
+                                    //     ],
+                                    //   ));
+
+                                    //   _scaffoldKey.currentState.showSnackBar(snackBar);
+                                    // }
+                                  },
+                                  color: AppColors.tMainColor,
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    ).then((onValue) {
+      if (onValue == null) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   Future<void> goToAdress(String address) async {
@@ -90,10 +248,10 @@ class _AddNiftarState extends State<AddNiftar> {
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: AppColors.tMainColor,
           label: Text(
-            "הוסף שם ושמור",
-            style: TextStyle(color: AppColors.tSadColor),
+            "שמור",
+            style: TextStyle(color: Colors.white),
           ),
-          onPressed: () {
+          onPressed: () async {
             if (marker == null) {
               final snackBar = SnackBar(
                 content: Row(
@@ -108,116 +266,18 @@ class _AddNiftarState extends State<AddNiftar> {
               );
               _scaffoldKey.currentState.showSnackBar(snackBar);
             } else {
-              double width = MediaQuery.of(context).size.width;
-              double height = MediaQuery.of(context).size.height;
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => AlertDialog(
-                  contentPadding: EdgeInsets.all(0),
-                  backgroundColor: Colors.transparent,
-                  elevation: 5,
-                  content: StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(25.0),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: <Widget>[
-                                SizedBox(
-                                  width: width - 30,
-                                  child: TextField(
-                                    controller: fullNameController,
-                                    decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 40,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      FlatButton(
-                                          onPressed: !isSaving
-                                              ? () {
-                                                  Navigator.pop(context);
-                                                }
-                                              : null,
-                                          child: Text(
-                                            "ביטול",
-                                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tSadColor),
-                                          )),
-                                      RaisedButton(
-                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30),
-                                          ),
-                                           child: !isSaving
-                                              ? Text(
-                                                  "אישור",
-                                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
-                                                )
-                                              : CircularProgressIndicator(
-                                                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.tLightTextColor),
-                                                ),
-                                          onPressed: () async {
-                                            if (fullNameController.text.toString() != "") {
-                                              setState(() {
-                                                isSaving = true;
-                                              });
-                                              PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
-                                              markerProvider.addMarker(pm);
-                                              await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
-                                              Navigator.pop(context, pm);
-                                            } else {
-                                              final snackBar = SnackBar(
-                                                  content: Row(
-                                                children: <Widget>[
-                                                  Icon(Icons.warning),
-                                                  SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  Text('חובה למלא את השדות'),
-                                                ],
-                                              ));
-
-                                              _scaffoldKey.currentState.showSnackBar(snackBar);
-                                            }
-                                          },
-                                          color: AppColors.tSadColor,
-                                         
-                                         
-                                                
-                                                )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ).then((onValue) {
-                if (onValue != null) {
-                  Navigator.pop(context, onValue);
-                }
+              setState(() {
+                isSaving = true;
               });
+              PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
+              markerProvider.addMarker(pm);
+              await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
+              Navigator.pop(context, [true, pm]);
             }
           },
           icon: Icon(
             Icons.save,
-            color: AppColors.tSadColor,
+            color: Colors.white,
           ),
         ),
         body: Container(
@@ -307,7 +367,12 @@ class _AddNiftarState extends State<AddNiftar> {
                     ),
                   ),
                 ),
-              )
+              ),
+              if (isSaving)
+                Align(
+                  alignment: Alignment.center,
+                  child: CupertinoActivityIndicator(),
+                )
             ],
           ),
         ),
