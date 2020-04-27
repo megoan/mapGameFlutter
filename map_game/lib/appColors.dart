@@ -11,6 +11,7 @@ class AppColors {
   static const Color GradientTop = Colors.white;
 
   static Color tMainColor = Color(0xFF052438);
+  static Color primary = Color(0xFF065d96);
   static Color tSecondaryColor = Colors.grey;
   static Color tDarkTextColor = Colors.black87;
   static Color tLightTextColor = Colors.white;
@@ -18,4 +19,5 @@ class AppColors {
   static Color tSadColor = Color(0xFFFF8F00);
   static Color tGradientBottom = Color(0xF09ED9FF);
   static Color tGradientTop = Colors.white;
+  //0xFF065d96
 }

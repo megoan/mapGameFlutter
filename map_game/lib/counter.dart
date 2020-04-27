@@ -14,8 +14,8 @@ class CounterText extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance.collection('mainInfo').snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) return new Text('טוען...', style: TextStyle(fontSize: 20, color: Colors.white));
-          return new Text( snapshot.data.documents[0]["readNum"].toString(), style: TextStyle(fontSize: 26, color: AppColors.tLightTextColor));
+          if (!snapshot.hasData) return  Directionality(textDirection: TextDirection.rtl, child: Text('טוען...', style: TextStyle(fontSize: 20, color: AppColors.tMainColor)));
+          return new Text( snapshot.data.documents[0]["readNum"].toString(), style: TextStyle(fontSize: 26, color: AppColors.tMainColor));
          
         });
   }

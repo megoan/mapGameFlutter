@@ -100,116 +100,128 @@ class _AddNiftarState extends State<AddNiftar> {
                     Radius.circular(25.0),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    child: Container(
-                      width: width - 30,
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "הוספת שם לתפילה",
-                              style: TextStyle(fontSize: 18, color: Colors.grey),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Container(width: width - 46, child: Text("אנא מלא/י את שמו/ה של החולה בצורה הבאה",textAlign: TextAlign.center,)),
-                          Text("השם שלו/ה בן/בת שם של אמא שלו/ה"),
-                          SizedBox(
-                            height: 3,
-                          ),
-                          Text(
-                            "לדוגמא: יצחק בן שרה",
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SizedBox(
-                            width: width - 46,
-                            child: Form(
-                              key: _formKey,
-                              child: TextFormField(
-                                validator: (v) {
-                                  if (v != null && v.trim() != "") {
-                                    return null;
-                                  } else
-                                    return 'הזן שם מלא: פלוני בן אלמוני';
-                                },
-                                controller: fullNameController,
-                                decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SingleChildScrollView(
+                      child: Container(
+                        width: width - 30,
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "הוספת שם לתפילה",
+                                style: TextStyle(fontSize: 18, color: Colors.grey),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 40,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                FlatButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    "ביטול",
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tMainColor),
-                                  ),
-                                ),
-                                RaisedButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Row(
-                                    children: <Widget>[
-                                      Text(
-                                        "בחר/י מיקום במפה",
-                                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
-                                      ),
-                                      // SizedBox(
-                                      //   width: 4,
-                                      // ),
-                                      // Icon(
-                                      //   Icons.location_on,
-                                      //   color: Colors.white,
-                                      // )
-                                    ],
-                                  ),
-                                  onPressed: () async {
-                                    if (_formKey.currentState.validate()) {
-                                      Navigator.pop(context, true);
-                                      // PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
-                                      // markerProvider.addMarker(pm);
-                                      // await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
-                                      // Navigator.pop(context, pm);
-                                    }
-                                    // else {
-                                    //   final snackBar = SnackBar(
-                                    //       content: Row(
-                                    //     children: <Widget>[
-                                    //       Icon(Icons.warning),
-                                    //       SizedBox(
-                                    //         width: 20,
-                                    //       ),
-                                    //       Text('חובה למלא את השם'),
-                                    //     ],
-                                    //   ));
-
-                                    //   _scaffoldKey.currentState.showSnackBar(snackBar);
-                                    // }
-                                  },
-                                  color: AppColors.tMainColor,
-                                )
-                              ],
+                            SizedBox(
+                              height: 5,
                             ),
-                          )
-                        ],
+                            Container(
+                                width: width - 46,
+                                child: Text(
+                                  "מלא את שמו של החולה בצורה הבאה",
+                                  textAlign: TextAlign.center,
+                                )),
+                            SizedBox(
+                              height: 4,
+                            ),
+                            Text("השם שלו/ה בן/בת שם של אמא שלו/ה"),
+                            SizedBox(
+                              height: 3,
+                            ),
+                            Text(
+                              "לדוגמא: יצחק בן שרה",
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            SizedBox(
+                              width: width - 46,
+                              child: Form(
+                                key: _formKey,
+                                child: TextFormField(
+                                  textAlign: TextAlign.start,
+                                  validator: (v) {
+                                    if (v != null && v.trim() != "") {
+                                      return null;
+                                    } else
+                                      return 'הזן שם מלא: פלוני בן אלמוני';
+                                  },
+                                  controller: fullNameController,
+                                  decoration: InputDecoration(hintText: 'הזן שם מלא: פלוני בן אלמוני'),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 40,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  FlatButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      "ביטול",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tMainColor),
+                                    ),
+                                  ),
+                                  RaisedButton(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Text(
+                                          "בחר/י מיקום במפה",
+                                          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.tLightTextColor),
+                                        ),
+                                        // SizedBox(
+                                        //   width: 4,
+                                        // ),
+                                        // Icon(
+                                        //   Icons.location_on,
+                                        //   color: Colors.white,
+                                        // )
+                                      ],
+                                    ),
+                                    onPressed: () async {
+                                      if (_formKey.currentState.validate()) {
+                                        Navigator.pop(context, true);
+                                        // PMarker pm = PMarker("34345", TYPE.REFUA, fullNameController.text.toString(), 0, DateTime.now(), marker.position.latitude, marker.position.longitude);
+                                        // markerProvider.addMarker(pm);
+                                        // await databaseReference.collection("sick").add({'fullName': fullNameController.text.toString(), 'chapterCount': 0, 'type': "refua", "createdAt": DateTime.now(), "loc": GeoPoint(marker.position.latitude, marker.position.longitude)});
+                                        // Navigator.pop(context, pm);
+                                      }
+                                      // else {
+                                      //   final snackBar = SnackBar(
+                                      //       content: Row(
+                                      //     children: <Widget>[
+                                      //       Icon(Icons.warning),
+                                      //       SizedBox(
+                                      //         width: 20,
+                                      //       ),
+                                      //       Text('חובה למלא את השם'),
+                                      //     ],
+                                      //   ));
+
+                                      //   _scaffoldKey.currentState.showSnackBar(snackBar);
+                                      // }
+                                    },
+                                    color: AppColors.tMainColor,
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -301,7 +313,7 @@ class _AddNiftarState extends State<AddNiftar> {
                     });
                   },
                   markers: markers,
-                  mapType: MapType.satellite,
+                  mapType: MapType.hybrid,
                   initialCameraPosition: _kGooglePlex,
                   onMapCreated: (GoogleMapController controller) {
                     setState(() {

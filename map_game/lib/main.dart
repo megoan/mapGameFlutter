@@ -5,13 +5,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:map_game/addNiftar.dart';
 import 'package:map_game/appColors.dart';
+import 'package:map_game/helpMe.dart';
 import 'package:map_game/markerDialog.dart';
 import 'package:map_game/models/pMarker.dart';
 import 'package:map_game/providers/markerProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter/services.dart' show rootBundle;
 import 'counter.dart';
 
 void main() async {
@@ -52,6 +53,7 @@ class MapSampleState extends State<MapSample> {
   TextEditingController controller = new TextEditingController();
   final databaseReference = Firestore.instance;
   Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController mapController;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Set<Marker> markers;
   BitmapDescriptor customIcon;
@@ -59,11 +61,12 @@ class MapSampleState extends State<MapSample> {
   MarkerProvider markerProvider;
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
   SharedPreferences prefs;
-
+  String _mapStyle;
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(MarkerProvider.startLan, MarkerProvider.startLon),
     zoom: 7.7,
   );
+
   String search = "";
   bool mapIsLoading = true;
   static final CameraPosition _kLake = CameraPosition(bearing: 192.8334901395799, target: LatLng(31.778113, 35.232285), tilt: 59.440717697143555, zoom: 19.151926040649414);
@@ -123,6 +126,9 @@ class MapSampleState extends State<MapSample> {
 
   @override
   void initState() {
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
     controller.addListener(() {
       setState(() {
         search = controller.text;
@@ -165,7 +171,7 @@ class MapSampleState extends State<MapSample> {
     //createMarker(context);
     return new Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Theme.of(context).backgroundColor,
+      //backgroundColor: Theme.of(context).backgroundColor,
       body: SafeArea(
         child: Stack(
           alignment: Alignment.center,
@@ -178,9 +184,11 @@ class MapSampleState extends State<MapSample> {
                 child: GoogleMap(
                   onCameraMove: (p) {},
                   markers: markers,
-                  mapType: MapType.satellite,
+                  mapType: MapType.hybrid,
                   initialCameraPosition: _kGooglePlex,
                   onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+                    mapController.setMapStyle(_mapStyle);
                     setState(() {
                       mapIsLoading = false;
                     });
@@ -191,156 +199,193 @@ class MapSampleState extends State<MapSample> {
             ),
             Align(
               alignment: Alignment.topCenter,
-              child: Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-                    Container(
-                      // decoration: BoxDecoration(
-                      //   color: AppColors.tMainColor,
-                      //   borderRadius: BorderRadius.all(
-                      //     Radius.circular(50),
-                      //   ),
-                      // ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                        child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Text(
-                                "פרקים שנקראו",
-                                style: TextStyle(fontSize: 18, color: AppColors.tLightTextColor),
-                              ),
-                              Text(
-                                "בעולם",
-                                style: TextStyle(fontSize: 18, color: AppColors.tLightTextColor),
-                              ),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              CounterText(),
-                            ],
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center),
-                      ),
-                    ),
-                    RaisedButton(
-                      splashColor: Colors.grey[600],
-                      color: AppColors.tMainColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      onPressed: () {
-                        double width = MediaQuery.of(context).size.width;
-                        double height = MediaQuery.of(context).size.height;
-                        showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                                  contentPadding: EdgeInsets.all(0),
-                                  backgroundColor: Colors.transparent,
-                                  elevation: 5,
-                                  content: StatefulBuilder(
-                                    builder: (BuildContext context, StateSetter setState) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                            gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.tGradientTop, AppColors.tGradientBottom], stops: [0.0, 1.0]),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(25.0),
-                                            )),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: <Widget>[
-                                                SizedBox(
-                                                  width: width - 30,
-                                                  child: TextField(
-                                                    decoration: InputDecoration(hintText: 'חפש שם'),
-                                                    onChanged: (val) {
-                                                      setState(() {
-                                                        search = val;
-                                                      });
-                                                    },
-                                                  ),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                      color: Colors.white,
+                      child: Row(
+                        //mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Spacer(),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          CounterText(),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            "פרקים שנקראו בעולם",
+                            style: TextStyle(color: AppColors.tMainColor),
+                          ),
+                          Spacer(),
+                        ],
+                      )),
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+                        FloatingActionButton(
+                          child: Icon(FontAwesomeIcons.handsHelping,color: Colors.white,),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => HelpMe()),
+                            );
+                          },
+                        ),
+                        // Container(
+                        //   // decoration: BoxDecoration(
+                        //   //   color: AppColors.tMainColor,
+                        //   //   borderRadius: BorderRadius.all(
+                        //   //     Radius.circular(50),
+                        //   //   ),
+                        //   // ),
+                        //   child: Padding(
+                        //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                        //     child: Column(
+                        //         mainAxisSize: MainAxisSize.min,
+                        //         children: <Widget>[
+                        //           Text(
+                        //             "פרקים שנקראו",
+                        //             style: TextStyle(fontSize: 18, color: AppColors.tLightTextColor),
+                        //           ),
+                        //           Text(
+                        //             "בעולם",
+                        //             style: TextStyle(fontSize: 18, color: AppColors.tLightTextColor),
+                        //           ),
+                        //           SizedBox(
+                        //             height: 8,
+                        //           ),
+
+                        //         ],
+                        //         crossAxisAlignment: CrossAxisAlignment.center,
+                        //         mainAxisAlignment: MainAxisAlignment.center),
+                        //   ),
+                        // ),
+                        RaisedButton(
+                          splashColor: Colors.grey[600],
+                          color: AppColors.tMainColor,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: Colors.lightBlue[900], width: 2)),
+                          onPressed: () {
+                            double width = MediaQuery.of(context).size.width;
+                            double height = MediaQuery.of(context).size.height;
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                contentPadding: EdgeInsets.all(0),
+                                backgroundColor: Colors.transparent,
+                                elevation: 5,
+                                content: StatefulBuilder(
+                                  builder: (BuildContext context, StateSetter setState) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.tGradientTop, AppColors.tGradientBottom], stops: [0.0, 1.0]),
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(25.0),
+                                          )),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              SizedBox(
+                                                width: width - 30,
+                                                child: TextField(
+                                                  decoration: InputDecoration(hintText: 'חפש שם'),
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      search = val;
+                                                    });
+                                                  },
                                                 ),
-                                                SizedBox(height: 15),
-                                                SizedBox(
-                                                  height: height - 230,
-                                                  width: width - 30,
-                                                  child: ListView.builder(
-                                                      itemCount: markerProvider.pmarkers.length,
-                                                      itemBuilder: (context, index) {
-                                                        return (search == "" || markerProvider.pmarkers[index].fullName.toString().toLowerCase().contains(search.toLowerCase()))
-                                                            ? Card(
-                                                                elevation: 3,
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.circular(8),
-                                                                ),
-                                                                child: InkWell(
-                                                                  borderRadius: BorderRadius.circular(8),
-                                                                  onTap: () async {
-                                                                    Navigator.of(context).pop([false, index]);
-                                                                  },
-                                                                  child: Padding(
-                                                                    padding: const EdgeInsets.all(12.0),
-                                                                    child: Row(
+                                              ),
+                                              SizedBox(height: 15),
+                                              SizedBox(
+                                                height: height - 230,
+                                                width: width - 30,
+                                                child: ListView.builder(
+                                                  itemCount: markerProvider.pmarkers.length,
+                                                  itemBuilder: (context, index) {
+                                                    return (search == "" || markerProvider.pmarkers[index].fullName.toString().toLowerCase().contains(search.toLowerCase()))
+                                                        ? Card(
+                                                            elevation: 3,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(8),
+                                                            ),
+                                                            child: InkWell(
+                                                              borderRadius: BorderRadius.circular(8),
+                                                              onTap: () async {
+                                                                Navigator.of(context).pop([false, index]);
+                                                              },
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(12.0),
+                                                                child: Row(
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                  children: <Widget>[
+                                                                    Row(
                                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                       children: <Widget>[
-                                                                        Row(
-                                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                          children: <Widget>[
-                                                                            // Text(markerProvider.pmarkers[index].name),
-                                                                            // Text(' Son Of '),
-                                                                            Container(width: (width - 50) * 0.5, child: Text(markerProvider.pmarkers[index].fullName)),
-                                                                            //Text(markerProvider.pmarkers[index].fullName),
-                                                                          ],
-                                                                        ),
-                                                                        Icon(
-                                                                          FontAwesomeIcons.bookOpen,
-                                                                          color: AppColors.tMainColor.withOpacity(0.5),
-                                                                        )
+                                                                        // Text(markerProvider.pmarkers[index].name),
+                                                                        // Text(' Son Of '),
+                                                                        Container(width: (width - 50) * 0.5, child: Text(markerProvider.pmarkers[index].fullName)),
+                                                                        //Text(markerProvider.pmarkers[index].fullName),
                                                                       ],
                                                                     ),
-                                                                  ),
+                                                                    Icon(
+                                                                      FontAwesomeIcons.bookOpen,
+                                                                      color: AppColors.tMainColor.withOpacity(0.5),
+                                                                    )
+                                                                  ],
                                                                 ),
-                                                              )
-                                                            : Container();
-                                                      }),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Container();
+                                                  },
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                )).then((index) async {
-                          if (index != null) {
-                            PMarker pMarker = markerProvider.pmarkers[index[1]];
-                            _goToMarker(CameraPosition(bearing: 0, target: LatLng(pMarker.lat, pMarker.lon), tilt: 59.440717697143555, zoom: 6.0));
-                            await Future.delayed(Duration(milliseconds: 1000), () {
-                              _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(pMarker.lat, pMarker.lon), tilt: 59.440717697143555, zoom: 19.151926040649414));
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ).then((index) async {
+                              setState(() {
+                                search = "";
+                              });
+
+                              if (index != null) {
+                                PMarker pMarker = markerProvider.pmarkers[index[1]];
+                                _goToMarker(CameraPosition(bearing: 0, target: LatLng(pMarker.lat, pMarker.lon), tilt: 59.440717697143555, zoom: 6.0));
+                                await Future.delayed(Duration(milliseconds: 1000), () {
+                                  _goToMarker(CameraPosition(bearing: 192.8334901395799, target: LatLng(pMarker.lat, pMarker.lon), tilt: 59.440717697143555, zoom: 19.151926040649414));
+                                });
+                                Future.delayed(Duration(milliseconds: 1500), () {
+                                  showDialog(context: context, builder: (_) => MarkerDialog(pMarker));
+                                });
+                              }
                             });
-                            Future.delayed(Duration(milliseconds: 1500), () {
-                              showDialog(context: context, builder: (_) => MarkerDialog(pMarker));
-                            });
-                          }
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: Text(
-                          "שמות לתפילה",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: AppColors.tLightTextColor,
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            child: Text(
+                              "שמות לתפילה",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: AppColors.tLightTextColor,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    )
-                  ]),
-                ),
+                        )
+                      ]),
+                    ),
+                  ),
+                ],
               ),
             ),
             Align(
@@ -353,9 +398,7 @@ class MapSampleState extends State<MapSample> {
                     RaisedButton(
                         splashColor: Colors.grey[600],
                         color: AppColors.tMainColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30), side: BorderSide(color: Colors.lightBlue[900], width: 2)),
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -417,6 +460,7 @@ class MapSampleState extends State<MapSample> {
         ),
       ),
       appBar: AppBar(
+        centerTitle: true,
         title: Text("תהילים עולמי"),
         leading: CircleAvatar(
           radius: 10,

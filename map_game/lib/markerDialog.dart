@@ -18,6 +18,158 @@ class MarkerDialog extends StatefulWidget {
 }
 
 class _MarkerDialogState extends State<MarkerDialog> {
+  List prakim = [
+    "א",
+    "ב",
+    "ג",
+    "ד",
+    "ה",
+    "ו",
+    "ז",
+    "ח",
+    "ט",
+    "י",
+    "יא",
+    "יב",
+    "יג",
+    "יד",
+    "טו",
+    "טז",
+    "יז",
+    "יח",
+    "יט",
+    "כ",
+    "כא",
+    "כב",
+    "כג",
+    "כד",
+    "כה",
+    "כו",
+    "כז",
+    "כח",
+    "כט",
+    "ל",
+    "לא",
+    "לב",
+    "לג",
+    "לד",
+    "לה",
+    "לו",
+    "לז",
+    "לח",
+    "לט",
+    "מ",
+    "מא",
+    "מב",
+    "מג",
+    "מד",
+    "מה",
+    "מו",
+    "מז",
+    "מח",
+    "מט",
+    "נ",
+    "נא",
+    "נב",
+    "נג",
+    "נד",
+    "נה",
+    "נו",
+    "נז",
+    "נח",
+    "נט",
+    "ס",
+    "סא",
+    "סב",
+    "סג",
+    "סד",
+    "סה",
+    "סו",
+    "סז",
+    "סח",
+    "סט",
+    "ע",
+    "עא",
+    "עב",
+    "עג",
+    "עד",
+    "עה",
+    "עו",
+    "עז",
+    "עח",
+    "עט",
+    "פ",
+    "פא",
+    "פב",
+    "פג",
+    "פד",
+    "פה",
+    "פו",
+    "פז",
+    "פח",
+    "פט",
+    "צ",
+    "צא",
+    "צב",
+    "צג",
+    "צד",
+    "צה",
+    "צו",
+    "צז",
+    "צח",
+    "צט",
+    "ק",
+    "קא",
+    "קב",
+    "קג",
+    "קד",
+    "קה",
+    "קו",
+    "קז",
+    "קח",
+    "קט",
+    "קי",
+    "קיא",
+    "קיב",
+    "קיג",
+    "קיד",
+    "קטו",
+    "קטז",
+    "קיז",
+    "קיח",
+    "קיט",
+    "קכ",
+    "קכא",
+    "קכב",
+    "קכג",
+    "קכד",
+    "קכה",
+    "קכו",
+    "קכז",
+    "קכח",
+    "קכט",
+    "קל",
+    "קלא",
+    "קלב",
+    "קלג",
+    "קלד",
+    "קלה",
+    "קלו",
+    "קלז",
+    "קלח",
+    "קלט",
+    "קמ",
+    "קמא",
+    "קמב",
+    "קמג",
+    "קמד",
+    "קמה",
+    "קמו",
+    "קמז",
+    "קמח",
+    "קמט",
+    "קנ",
+  ];
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   int index = 0;
   Random random = new Random();
@@ -53,7 +205,6 @@ class _MarkerDialogState extends State<MarkerDialog> {
                 Radius.circular(25.0),
               )),
           child: Column(
-            
             children: <Widget>[
               SizedBox(
                 height: 5,
@@ -63,7 +214,12 @@ class _MarkerDialogState extends State<MarkerDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Container(width: 200, child: new Text("${widget.pMarker.fullName}", textAlign: TextAlign.center,)),
+                    Container(
+                        width: 200,
+                        child: new Text(
+                          "${widget.pMarker.fullName}",
+                          textAlign: TextAlign.center,
+                        )),
                     //new Text("${widget.pMarker.fullName}"),
                     // new Text(widget.pMarker.name),
                   ],
@@ -173,6 +329,96 @@ class _MarkerDialogState extends State<MarkerDialog> {
                     ),
                   ),
                 ),
+              ),
+              RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  color: AppColors.tMainColor,
+                  child: Text(
+                    "חפש פרק",
+                    style: TextStyle(color: AppColors.tLightTextColor),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                              // contentPadding: EdgeInsets.all(0),
+                              // backgroundColor: Colors.transparent,
+                              // elevation: 5,
+                              title: Text(
+                                "בחר פרק",
+                                textAlign: TextAlign.center,
+                              ),
+                              content: Directionality(
+                                textDirection: TextDirection.rtl,
+                                child: Container(
+                                  // decoration: BoxDecoration(
+                                  //     gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [AppColors.tGradientTop, AppColors.tGradientBottom], stops: [0.0, 1.0]),
+                                  //     borderRadius: BorderRadius.all(
+                                  //       Radius.circular(25.0),
+                                  //     )),
+                                  width: MediaQuery.of(context).size.width * .8,
+                                  child: GridView.count(
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 10,
+                                    crossAxisCount: 4,
+                                    children: List.generate(150, (index) {
+                                      return RaisedButton(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        color: AppColors.tMainColor,
+                                        onPressed: () {
+                                          Navigator.pop(context, [index]);
+                                        },
+                                        child: Center(
+                                          child: Text(
+                                            prakim[index],
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  ),
+                                ),
+                              ),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: Text(
+                                    "ביטול",
+                                    style: TextStyle(color: AppColors.tMainColor, fontWeight: FontWeight.bold),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                )
+                              ],
+                            )).then((onValue) {
+                      if (onValue != null && onValue.length > 0) {
+                        setState(() {
+                          scrollController.animateTo(
+                            0.0,
+                            curve: Curves.easeOut,
+                            duration: const Duration(milliseconds: 300),
+                          );
+                          index = onValue[0];
+                        });
+                      }
+                    });
+                    // setState(
+                    //   () {
+                    //     scrollController.animateTo(
+                    //       0.0,
+                    //       curve: Curves.easeOut,
+                    //       duration: const Duration(milliseconds: 300),
+                    //     );
+                    //     index = random.nextInt(150);
+                    //   },
+                    // );
+                  }),
+              SizedBox(
+                height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
